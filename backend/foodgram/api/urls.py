@@ -8,6 +8,7 @@ from api.views import TagViewSet, IngredientViewSet
 router = DefaultRouter()
 router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet)
+# router.register('recipes', RecipeViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
