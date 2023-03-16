@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.db import models
 from django.core.validators import MinValueValidator
+from django.db import models
 
 User = get_user_model()
 
@@ -9,16 +9,20 @@ class Tag(models.Model):
     """Модель тегов."""
     name = models.CharField(
         'Название тега',
-        max_length=200)
+        max_length=200,
+        unique=True
+    )
     color = models.CharField(
         'Цвет тега',
         max_length=7,
-        null=True
+        null=True,
+        unique=True
     )
     slug = models.SlugField(
         max_length=200,
         null=True,
-        unique=True)
+        unique=True
+    )
 
     def __str__(self):
         return self.name
