@@ -3,8 +3,8 @@ from re import match
 from api.serializers import RecipeAnotherSerializer
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework.serializers import (SerializerMethodField,
-                                        ValidationError)
+from rest_framework.serializers import SerializerMethodField, ValidationError
+from rest_framework.validators import UniqueTogetherValidator
 from users.models import Follow
 
 User = get_user_model()
@@ -71,9 +71,22 @@ class FollowSerializer(CustomUserSerializer):
         )
         read_only_fields = ('email', 'username', 'first_name', 'last_name')
 
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'author'),
+                message=('Повторная подписка невозможна.')
+            )
+        ]
+
     def get_recipes(self, obj):
+        # from api.serializers import RecipeAnotherSerializer
         recipes = obj.recipes.all()
-        serializers = RecipeAnotherSerializer(recipes, many=True, read_only=True)
+        serializers = RecipeAnotherSerializer(
+            recipes,
+            many=True,
+            read_only=True
+        )
         return serializers.data
 
     def get_recipes_count(self, obj):

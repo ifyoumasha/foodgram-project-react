@@ -46,6 +46,9 @@ class Follow(models.Model):
         on_delete=models.CASCADE
     )
 
+    def __str__(self):
+        return f'{self.user} подписался на {self.author}.'
+
     class Meta:
         constraints = [
             models.CheckConstraint(
