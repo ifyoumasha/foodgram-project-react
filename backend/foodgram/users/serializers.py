@@ -1,10 +1,10 @@
 from re import match
 
-from api.serializers import RecipeAnotherSerializer
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework.serializers import SerializerMethodField, ValidationError
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.status import HTTP_400_BAD_REQUEST
+
 from users.models import Follow
 
 User = get_user_model()
@@ -71,16 +71,27 @@ class FollowSerializer(CustomUserSerializer):
         )
         read_only_fields = ('email', 'username', 'first_name', 'last_name')
 
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=('user', 'author'),
-                message=('Повторная подписка невозможна.')
+    def validate(self, data):
+        user = self.context.get('request').user
+        author = self.instance
+        if user == author:
+            raise ValidationError(
+                detail='Пользователь не может подписаться сам на себя',
+                code=HTTP_400_BAD_REQUEST
             )
-        ]
+        if Follow.objects.filter(
+            user=user,
+            author=author
+        ).exists():
+            raise ValidationError(
+                detail=('Пользователь не может подписаться '
+                        'на другого пользователя дважды'),
+                code=HTTP_400_BAD_REQUEST
+            )
+        return data
 
     def get_recipes(self, obj):
-        # from api.serializers import RecipeAnotherSerializer
+        from api.serializers import RecipeAnotherSerializer
         recipes = obj.recipes.all()
         serializers = RecipeAnotherSerializer(
             recipes,

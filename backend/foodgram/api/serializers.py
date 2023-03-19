@@ -1,10 +1,13 @@
 import base64
 
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
+from rest_framework.serializers import (CharField, ImageField, ModelSerializer,
+                                        SerializerMethodField, ValidationError)
+from rest_framework.status import HTTP_400_BAD_REQUEST
+
 from recipes.models import (Basket, Favorites, Ingredient, Recipe,
                             RecipeIngredientRelations, RecipeTagRelations, Tag)
-from rest_framework.serializers import (ImageField, ModelSerializer,
-                                        SerializerMethodField)
 from users.serializers import CustomUserSerializer
 
 
@@ -23,14 +26,13 @@ class IngredientSerializer(ModelSerializer):
 
 
 class RecipeIngredientSerializer(ModelSerializer):
-    measurement_unit = SerializerMethodField()
+    id = CharField(source='ingredient.id')
+    name = CharField(source='ingredient.name')
+    measurement_unit = CharField(source='ingredient.measurement_unit')
 
     class Meta:
         model = RecipeIngredientRelations
-        fields = ('__all__')
-
-    def get_measurement_unit(self, instance):
-        return instance.ingredient.measurement_unit
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class Base64ImageField(ImageField):
@@ -42,13 +44,25 @@ class Base64ImageField(ImageField):
         return super().to_internal_value(data)
 
 
+class RecipeAnotherSerializer(ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
 class RecipeSerializer(ModelSerializer):
-    tags = TagSerializer(many=True)
-    ingredients = RecipeIngredientSerializer(many=True)
+    tags = TagSerializer(many=True, read_only=True)
+    ingredients = RecipeIngredientSerializer(
+        many=True,
+        read_only=True,
+        source='recipeingredientrelations_set',
+    )
     author = CustomUserSerializer(read_only=True)
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -57,23 +71,23 @@ class RecipeSerializer(ModelSerializer):
             'tags',
             'author',
             'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
             'name',
             'image',
             'text',
-            'cooking_time',
-            'is_favorited',
-            'is_in_shopping_cart',
+            'cooking_time'
         )
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        tags = self.initial_data.get('tags')
+        ingredients = self.initial_data.get('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         for tag in tags:
-            RecipeTagRelations.objects.create(tag=tag, recipe=recipe)
+            RecipeTagRelations.objects.create(tag_id=tag, recipe=recipe)
         for ingredient in ingredients:
             RecipeIngredientRelations.objects.create(
-                ingredient=ingredient['id'],
+                ingredient_id=ingredient['id'],
                 recipe=recipe,
                 amount=ingredient['amount']
             )
@@ -87,16 +101,16 @@ class RecipeSerializer(ModelSerializer):
             'cooking_time',
             instance.cooking_time
         )
-        tags = validated_data.get('tags')
-        RecipeTagRelations.objects.filter(recipe=instance.id).delete()
+        tags = self.initial_data.get('tags')
+        RecipeTagRelations.objects.filter(recipe=instance).delete()
         for tag in tags:
-            RecipeTagRelations.objects.create(tag=tag, recipe=instance.id)
-        ingredients = validated_data.get('ingredients')
-        RecipeIngredientRelations.objects.filter(recipe=instance.id).delete()
+            RecipeTagRelations.objects.create(tag_id=tag, recipe=instance)
+        ingredients = self.initial_data.get('ingredients')
+        RecipeIngredientRelations.objects.filter(recipe=instance).delete()
         for ingredient in ingredients:
             RecipeIngredientRelations.objects.create(
-                ingredient=ingredient['id'],
-                recipe=instance.id,
+                ingredient_id=ingredient['id'],
+                recipe=instance,
                 amount=ingredient['amount']
             )
         instance.save()
@@ -120,9 +134,41 @@ class RecipeSerializer(ModelSerializer):
             recipe=obj
         ).exists()
 
-
-class RecipeAnotherSerializer(ModelSerializer):
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+    def validate(self, data):
+        ingredients = self.initial_data.get('ingredients')
+        tags = self.initial_data.get('tags')
+        if not ingredients:
+            raise ValidationError(
+                {'ingredients': ('В рецепт необходимо добавить '
+                                 'хотя бы один ингредиент.')
+                 }
+            )
+        array_of_ingredients = []
+        for ingredient in ingredients:
+            current_ingredient = get_object_or_404(
+                Ingredient, pk=ingredient['id']
+            )
+            if current_ingredient in array_of_ingredients:
+                raise ValidationError(
+                    detail='Ингредиенты в рецепте не должны повторяться.',
+                    code=HTTP_400_BAD_REQUEST
+                )
+            if int(ingredient['amount']) < 1:
+                raise ValidationError(
+                    {'ingredients': ('Количество ингредиентов в рецепте '
+                                     'должно быть больше или равно одному.')
+                     }
+                )
+        if not tags:
+            raise ValidationError(
+                {'tags': ('Рецепт обязательно должен быть привязан '
+                          'хотя бы к одному тегу.')
+                 }
+            )
+        array_of_tags = set(tags)
+        if len(array_of_tags) != len(tags):
+            raise ValidationError(
+                detail='Теги в рецепте не должны повторяться.',
+                code=HTTP_400_BAD_REQUEST
+            )
+        return data

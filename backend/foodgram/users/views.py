@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
+
 from users.models import Follow
 from users.serializers import CustomUserSerializer, FollowSerializer
 
@@ -42,6 +43,16 @@ class UserFollowViewSet(UserViewSet):
                 author=author
             )
             return Response(serializer.data, status=HTTP_201_CREATED)
-        follow = get_object_or_404(Follow, user=request.user, author=author)
-        follow.delete()
+        if not Follow.objects.filter(
+            user=request.user,
+            author=author
+        ).exists():
+            return Response(
+                {'errors': 'Подписки не существует.'},
+                status=HTTP_400_BAD_REQUEST
+            )
+        Follow.objects.filter(
+            user=request.user,
+            author=author
+        ).delete()
         return Response(status=HTTP_204_NO_CONTENT)

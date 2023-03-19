@@ -93,8 +93,8 @@ class RecipeTagRelations(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
-    # def __str__(self):
-    #     return f"({self.tag.__str__()}, {self.recipe.__str__()})"
+    def __str__(self):
+        return f"({self.tag.__str__()}, {self.recipe.__str__()})"
 
     class Meta:
         constraints = [
@@ -107,15 +107,19 @@ class RecipeTagRelations(models.Model):
 
 class RecipeIngredientRelations(models.Model):
     """Модель для связывания Recipe и Ingredient через поле ManyToManyField."""
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='ingredient',
+    )
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(
         'Количество ингредиентов',
         validators=[MinValueValidator(1), ]
     )
 
-    # def __str__(self):
-    #     return f"({self.ingredient.__str__()}, {self.recipe.__str__()})"
+    def __str__(self):
+        return f"({self.ingredient.__str__()}, {self.recipe.__str__()})"
 
     class Meta:
         constraints = [
@@ -147,8 +151,16 @@ class Favorites(models.Model):
 
 class Basket(models.Model):
     """Модель для добавления рецептов в корзину."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='baskets'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='baskets'
+    )
 
     def __str__(self):
         return f"({self.user} добавил рецепт {self.recipe} в корзину.)"
