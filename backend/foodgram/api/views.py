@@ -1,38 +1,53 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from api.filters import RecipeFilterSet
+from api.permissions import AdminOrAuthorOrReadOnly, IsAuthenticatedOrAdmin
 from api.serializers import (IngredientSerializer, RecipeAnotherSerializer,
                              RecipeIngredientRelations, RecipeSerializer,
                              TagSerializer)
-from recipes.models import Basket, Ingredient, Favorites, Recipe, Tag
+from recipes.models import Basket, Favorites, Ingredient, Recipe, Tag
 
 
 class TagViewSet(ReadOnlyModelViewSet):
+    """Вьюсет для модели Тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
+    """Вьюсет для модели Ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    filter_backends = (SearchFilter,)
+    search_fields = ('^name',)
 
 
 class RecipeViewSet(ModelViewSet):
+    """
+    Вьюсет для модели Рецептов с обработкой запросов для добавления рецептов
+    в избранное и корзину, а также для скачивания списка покупок.
+    """
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = (AdminOrAuthorOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilterSet
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=False)
+    @action(detail=False, permission_classes=(IsAuthenticatedOrAdmin,))
     def download_shopping_cart(self, request):
         if not Basket.objects.filter(
                 user=request.user
@@ -50,7 +65,7 @@ class RecipeViewSet(ModelViewSet):
         shopping_list = ''
         for ingredient in ingredients:
             item = (f'* {ingredient["ingredient__name"]} '
-                    f'({ingredient["ingredient__measurement_unit"]}) -- '
+                    f'({ingredient["ingredient__measurement_unit"]}) - '
                     f'{ingredient["amount"]}\n\n'
                     )
             shopping_list += item
@@ -59,7 +74,11 @@ class RecipeViewSet(ModelViewSet):
                                 )
         return response
 
-    @action(methods=['post', 'delete'], detail=True)
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=(IsAuthenticatedOrAdmin,)
+        )
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
@@ -91,7 +110,11 @@ class RecipeViewSet(ModelViewSet):
         ).delete()
         return Response(status=HTTP_204_NO_CONTENT)
 
-    @action(methods=['post', 'delete'], detail=True)
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=(IsAuthenticatedOrAdmin,)
+        )
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':

@@ -11,6 +11,7 @@ User = get_user_model()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
+    """Кастомный сериализатор для создания Пользователя."""
     class Meta:
         model = User
         fields = (
@@ -30,6 +31,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class CustomUserSerializer(UserSerializer):
+    """Кастомный сериализатор для работы с пользователем."""
     is_subscribed = SerializerMethodField()
 
     class Meta:
@@ -54,6 +56,7 @@ class CustomUserSerializer(UserSerializer):
 
 
 class FollowSerializer(CustomUserSerializer):
+    """Кастомный сериализатор для работы с подписками."""
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
 
@@ -76,7 +79,7 @@ class FollowSerializer(CustomUserSerializer):
         author = self.instance
         if user == author:
             raise ValidationError(
-                detail='Пользователь не может подписаться сам на себя',
+                detail='Пользователь не может подписаться сам на себя.',
                 code=HTTP_400_BAD_REQUEST
             )
         if Follow.objects.filter(
@@ -84,8 +87,8 @@ class FollowSerializer(CustomUserSerializer):
             author=author
         ).exists():
             raise ValidationError(
-                detail=('Пользователь не может подписаться '
-                        'на другого пользователя дважды'),
+                detail=('Нельзя подписаться на другого '
+                        'пользователя ещё раз.'),
                 code=HTTP_400_BAD_REQUEST
             )
         return data

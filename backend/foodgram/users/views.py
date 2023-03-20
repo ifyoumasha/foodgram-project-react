@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
 
+from api.permissions import IsAuthenticatedOrAdmin
 from users.models import Follow
 from users.serializers import CustomUserSerializer, FollowSerializer
 
@@ -13,10 +14,14 @@ User = get_user_model()
 
 
 class UserFollowViewSet(UserViewSet):
+    """
+    Вьюсет для модели Пользователя с обработкой запросов
+    на создание и удаление подписки.
+    """
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
 
-    @action(detail=False)
+    @action(detail=False, permission_classes=(IsAuthenticatedOrAdmin,))
     def subscriptions(self, request):
         follows = User.objects.filter(following__user=request.user)
         pages = self.paginate_queryset(follows)
@@ -27,7 +32,11 @@ class UserFollowViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(methods=['post', 'delete'], detail=True)
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=(IsAuthenticatedOrAdmin,)
+        )
     def subscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=self.kwargs.get('id'))
         if request.method == 'POST':

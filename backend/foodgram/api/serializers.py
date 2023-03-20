@@ -12,20 +12,21 @@ from users.serializers import CustomUserSerializer
 
 
 class TagSerializer(ModelSerializer):
-
+    """Сериализатор для модели Тегов."""
     class Meta:
         model = Tag
         fields = ('__all__')
 
 
 class IngredientSerializer(ModelSerializer):
-
+    """Сериализатор для модели Ингредиентов."""
     class Meta:
         model = Ingredient
         fields = ('__all__')
 
 
 class RecipeIngredientSerializer(ModelSerializer):
+    """Сериализатор для связанной модели Рецептов и Ингредиентов."""
     id = CharField(source='ingredient.id')
     name = CharField(source='ingredient.name')
     measurement_unit = CharField(source='ingredient.measurement_unit')
@@ -36,6 +37,7 @@ class RecipeIngredientSerializer(ModelSerializer):
 
 
 class Base64ImageField(ImageField):
+    """Класс для добавления изображения при создании рецепта."""
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -45,6 +47,7 @@ class Base64ImageField(ImageField):
 
 
 class RecipeAnotherSerializer(ModelSerializer):
+    """Сериализатор для Рецептов с добавлением времени приготовления."""
     image = Base64ImageField()
 
     class Meta:
@@ -53,6 +56,7 @@ class RecipeAnotherSerializer(ModelSerializer):
 
 
 class RecipeSerializer(ModelSerializer):
+    """Сериализатор для модели Рецептов."""
     tags = TagSerializer(many=True, read_only=True)
     ingredients = RecipeIngredientSerializer(
         many=True,
