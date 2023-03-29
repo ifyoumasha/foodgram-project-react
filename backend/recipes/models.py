@@ -24,13 +24,13 @@ class Tag(models.Model):
         unique=True
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return self.name
 
 
 class Ingredient(models.Model):
@@ -43,13 +43,13 @@ class Ingredient(models.Model):
         max_length=200
         )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
@@ -83,13 +83,13 @@ class Recipe(models.Model):
         validators=[MinValueValidator(1), ]
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.name
 
 
 class RecipeTagRelations(models.Model):
@@ -105,9 +105,6 @@ class RecipeTagRelations(models.Model):
         verbose_name='Рецепт, связанный с тегом'
     )
 
-    def __str__(self):
-        return f"Тег {self.tag} для рецепта {self.recipe}"
-
     class Meta:
         verbose_name = 'Связь тегов и рецептов'
         verbose_name_plural = 'Связь тегов и рецептов'
@@ -117,6 +114,9 @@ class RecipeTagRelations(models.Model):
                 name='Необходима уникальная связь между рецептом и тегом.'
             )
         ]
+
+    def __str__(self):
+        return f"Тег {self.tag} для рецепта {self.recipe}"
 
 
 class RecipeIngredientRelations(models.Model):
@@ -137,9 +137,6 @@ class RecipeIngredientRelations(models.Model):
         validators=[MinValueValidator(1), ]
     )
 
-    def __str__(self):
-        return f"Ингредиент {self.ingredient} для рецепта {self.recipe}"
-
     class Meta:
         verbose_name = 'Связь ингредиентов и рецептов'
         verbose_name_plural = 'Связь ингредиентов и рецептов'
@@ -150,6 +147,9 @@ class RecipeIngredientRelations(models.Model):
                      'рецептом и ингредиентом.'
             )
         ]
+
+    def __str__(self):
+        return f"Ингредиент {self.ingredient} для рецепта {self.recipe}"
 
 
 class Favorites(models.Model):
@@ -167,9 +167,6 @@ class Favorites(models.Model):
         verbose_name='Рецепт, добавленный в избранное'
     )
 
-    def __str__(self):
-        return f"({self.user} добавил рецепт {self.recipe} в избранное.)"
-
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
@@ -179,6 +176,9 @@ class Favorites(models.Model):
                 name='Нельзя повторно добавлять рецепт в избранное.'
             )
         ]
+
+    def __str__(self):
+        return f"({self.user} добавил рецепт {self.recipe} в избранное.)"
 
 
 class ShoppingCart(models.Model):
@@ -196,9 +196,6 @@ class ShoppingCart(models.Model):
         verbose_name='Рецепты, добавленные в корзину'
     )
 
-    def __str__(self):
-        return f"({self.user} добавил рецепт {self.recipe} в корзину.)"
-
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'
@@ -208,3 +205,6 @@ class ShoppingCart(models.Model):
                 name='Нельзя повторно добавлять рецепт в корзину.'
             )
         ]
+
+    def __str__(self):
+        return f"({self.user} добавил рецепт {self.recipe} в корзину.)"

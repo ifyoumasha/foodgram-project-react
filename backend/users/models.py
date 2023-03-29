@@ -26,13 +26,13 @@ class User(AbstractUser):
         'Пароль пользователя',
         max_length=150)
 
-    def __str__(self):
-        return self.username
-
     class Meta:
         ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
 
 
 class Subscription(models.Model):
@@ -50,9 +50,6 @@ class Subscription(models.Model):
         verbose_name='Автор',
     )
 
-    def __str__(self):
-        return f'{self.user} подписался на {self.author}.'
-
     class Meta:
         verbose_name = 'Подписчик'
         verbose_name_plural = 'Подписчики'
@@ -66,3 +63,6 @@ class Subscription(models.Model):
                 name='unique_following'
             )
         ]
+
+    def __str__(self):
+        return f'{self.user} подписался на {self.author}.'
