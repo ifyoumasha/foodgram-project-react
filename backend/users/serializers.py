@@ -31,6 +31,12 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             raise ValidationError('Некорректный логин')
         return value
 
+    def validate_email(self, value):
+        email = value.lower()
+        if User.objects.filter(email=email).exists():
+            raise ValidationError('Такой электронный адрес уже существует.')
+        return email
+
 
 class CustomUserSerializer(UserSerializer):
     """Кастомный сериализатор для работы с пользователем."""
