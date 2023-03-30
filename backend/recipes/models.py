@@ -201,7 +201,7 @@ class ShoppingCart(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
-                name='Нельзя повторно добавлять рецепт в корзину.'
+                name='Рецепт уже добавлен в корзину.'
             )
         ]
 
