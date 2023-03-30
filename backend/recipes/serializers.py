@@ -1,12 +1,21 @@
 import base64
 
 from django.core.files.base import ContentFile
-from rest_framework.serializers import (CharField, ImageField, ModelSerializer,
-                                        SerializerMethodField)
+from rest_framework.serializers import (CharField,
+                                        ImageField,
+                                        ModelSerializer,
+                                        SerializerMethodField,
+                                        ValidationError)
+from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
+                                   HTTP_400_BAD_REQUEST)
 
-from recipes.models import (Favorites, Ingredient, Recipe,
-                            RecipeIngredientRelations, RecipeTagRelations,
-                            ShoppingCart, Tag)
+from recipes.models import (Favorites,
+                            Ingredient,
+                            Recipe,
+                            RecipeIngredientRelations,
+                            RecipeTagRelations,
+                            ShoppingCart,
+                            Tag)
 from users.serializers import CustomUserSerializer
 
 
@@ -130,3 +139,53 @@ class RecipeSerializer(ModelSerializer):
         if user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
+
+
+class FavoritesSerializer(ModelSerializer):
+    """Сериализатор для модели Избранного."""
+
+    class Meta:
+        model = Favorites
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        user = self.context.get('request').user
+        recipe = data['recipe']
+        if Favorites.objects.filter(user=user, recipe=recipe).exists():
+            raise ValidationError(
+                {'errors': 'Рецепт уже есть в разделе избранное.'},
+                code=HTTP_400_BAD_REQUEST
+            )
+        return data
+
+    def to_representation(self, value):
+        request = self.context.get('request')
+        context = {'request': request}
+        serializer = RecipeAnotherSerializer(
+            value.recipe, context=context)
+        return serializer.data
+
+
+class ShoppingCartSerializer(ModelSerializer):
+    """Сериализатор для модели Корзины."""
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        user = self.context.get('request').user
+        recipe = data['recipe']
+        if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+            raise ValidationError(
+                {'errors': 'Рецепт уже есть в корзине пользователя.'},
+                code=HTTP_400_BAD_REQUEST
+            )
+        return data
+
+    def to_representation(self, value):
+        request = self.context.get('request')
+        context = {'request': request}
+        serializer = RecipeAnotherSerializer(
+            value.recipe, context=context)
+        return serializer.data

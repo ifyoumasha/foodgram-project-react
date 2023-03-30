@@ -5,6 +5,13 @@ from django.db import models
 
 class User(AbstractUser):
     """Модель пользователя."""
+    USER = 'user'
+    ADMIN = 'admin'
+    SUPERUSER = 'superuser'
+    ROLE = [
+        (USER, 'Пользователь'),
+        (ADMIN, 'Администратор'),
+        (SUPERUSER, 'Суперпользователь')]
     username = models.CharField(
         'Логин пользователя',
         max_length=150,
@@ -25,6 +32,23 @@ class User(AbstractUser):
     password = models.CharField(
         'Пароль пользователя',
         max_length=150)
+    role = models.CharField(
+        'Роль',
+        max_length=10,
+        choices=ROLE,
+        default=USER)
+
+    @property
+    def is_user(self):
+        return self.role == self.USER
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == self.SUPERUSER
 
     class Meta:
         ordering = ('id',)

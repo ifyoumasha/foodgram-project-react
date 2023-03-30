@@ -14,8 +14,12 @@ from recipes.filters import RecipeFilterSet
 from recipes.mixins import CustomRecipeViewSet
 from recipes.models import Favorites, Ingredient, Recipe, ShoppingCart, Tag
 from recipes.permissions import IsAuthorOrReadOnly
-from recipes.serializers import (IngredientSerializer, RecipeAnotherSerializer,
-                                 RecipeIngredientRelations, RecipeSerializer,
+from recipes.serializers import (IngredientSerializer,
+                                 FavoritesSerializer,
+                                 RecipeAnotherSerializer,
+                                 RecipeIngredientRelations,
+                                 RecipeSerializer,
+                                 ShoppingCartSerializer,
                                  TagSerializer)
 
 
@@ -58,33 +62,23 @@ class RecipeViewSet(CustomRecipeViewSet):
     def add_recipes_in_favorites(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        serializer = RecipeAnotherSerializer(recipe)
-        if Favorites.objects.filter(
-            user=user,
-            recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Рецепт уже есть в разделе избранное.'},
-                status=HTTP_400_BAD_REQUEST
-            )
-        Favorites.objects.create(
-            user=user,
-            recipe=recipe
+        favorites_data = {
+            'user': user.id,
+            'recipe': recipe.id
+        }
+        serializer = FavoritesSerializer(
+            data=favorites_data,
+            context={'request': request}
         )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        serializer.save()
         return Response(serializer.data, status=HTTP_201_CREATED)
 
     @add_recipes_in_favorites.mapping.delete
     def destroy_recipes_from_favorites(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        if not Favorites.objects.filter(
-            user=user,
-            recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Рецепт отсутствует в разделе избранное.'},
-                status=HTTP_400_BAD_REQUEST
-            )
         Favorites.objects.filter(
             user=user,
             recipe=recipe
@@ -100,33 +94,23 @@ class RecipeViewSet(CustomRecipeViewSet):
     def add_recipes_in_shopping_cart(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        serializer = RecipeAnotherSerializer(recipe)
-        if ShoppingCart.objects.filter(
-            user=user,
-            recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Рецепт уже есть в корзине пользователя.'},
-                status=HTTP_400_BAD_REQUEST
-            )
-        ShoppingCart.objects.create(
-            user=user,
-            recipe=recipe
+        shopping_cart_data = {
+            'user': user.id,
+            'recipe': recipe.id
+        }
+        serializer = ShoppingCartSerializer(
+            data=shopping_cart_data,
+            context={'request': request}
         )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        serializer.save()
         return Response(serializer.data, status=HTTP_201_CREATED)
 
     @add_recipes_in_shopping_cart.mapping.delete
     def destroy_recipes_from_shopping_cart(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        if not ShoppingCart.objects.filter(
-            user=user,
-            recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Рецепт отсутствует в корзине пользователя.'},
-                status=HTTP_400_BAD_REQUEST
-            )
         ShoppingCart.objects.filter(
             user=user,
             recipe=recipe

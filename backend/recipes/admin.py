@@ -1,9 +1,18 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from recipes.models import (Favorites, Ingredient, Recipe,
-                            RecipeIngredientRelations, RecipeTagRelations,
-                            ShoppingCart, Tag)
+from recipes.models import (Favorites,
+                            Ingredient,
+                            Recipe,
+                            RecipeIngredientRelations,
+                            RecipeTagRelations,
+                            ShoppingCart,
+                            Tag)
+
+
+class TagAdmin(ModelAdmin):
+    list_display = ('name', 'color', 'slug')
+    list_filter = ('name',)
 
 
 class IngredientAdmin(ModelAdmin):
@@ -19,10 +28,30 @@ class RecipeAdmin(ModelAdmin):
         return obj.favorites.count()
 
 
-admin.site.register(Tag)
+class RecipeTagRelationsAdmin(ModelAdmin):
+    list_display = ('tag', 'recipe')
+    list_filter = ('tag', 'recipe')
+
+
+class RecipeIngredientRelationsAdmin(ModelAdmin):
+    list_display = ('ingredient', 'recipe', 'amount')
+    list_filter = ('ingredient', 'recipe')
+
+
+class FavoritesAdmin(ModelAdmin):
+    list_display = ('user', 'recipe')
+    list_filter = ('user', 'recipe')
+
+
+class ShoppingCartAdmin(ModelAdmin):
+    list_display = ('user', 'recipe')
+    list_filter = ('user', 'recipe')
+
+
+admin.site.register(Tag, TagAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Favorites)
-admin.site.register(ShoppingCart)
-admin.site.register(RecipeIngredientRelations)
-admin.site.register(RecipeTagRelations)
+admin.site.register(RecipeTagRelations, RecipeTagRelationsAdmin)
+admin.site.register(RecipeIngredientRelations, RecipeIngredientRelationsAdmin)
+admin.site.register(Favorites, FavoritesAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)

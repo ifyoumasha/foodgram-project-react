@@ -29,6 +29,8 @@ class CustomUserCreateSerializer(UserCreateSerializer):
     def validate_username(self, value):
         if not match(r'[\w.@+\-]+', value):
             raise ValidationError('Некорректный логин')
+        if value == 'me':
+            raise ValidationError('Имя пользователя не может быть <me>.')
         return value
 
     def validate_email(self, value):
@@ -55,9 +57,7 @@ class CustomUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return Subscription.objects.filter(
+        return request.user.is_anonymous and Subscription.objects.filter(
             user=request.user,
             author=obj
         ).exists()
@@ -85,9 +85,7 @@ class FollowSerializer(ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return Subscription.objects.filter(
+        return request.user.is_anonymous and Subscription.objects.filter(
             user=request.user,
             author=obj
         ).exists()
