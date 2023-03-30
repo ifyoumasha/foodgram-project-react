@@ -143,8 +143,7 @@ class RecipeIngredientRelations(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('ingredient', 'recipe'),
-                name='Необходима уникальная связь между'
-                     'рецептом и ингредиентом.'
+                name='Связь рецепта и ингредиента должна быть уникальной.'
             )
         ]
 
