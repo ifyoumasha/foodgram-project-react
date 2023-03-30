@@ -41,7 +41,7 @@ class Ingredient(models.Model):
     measurement_unit = models.CharField(
         'Единица измерения',
         max_length=200
-        )
+    )
 
     class Meta:
         ordering = ('name',)
@@ -77,7 +77,7 @@ class Recipe(models.Model):
         Tag,
         through='RecipeTagRelations',
         verbose_name='Тег'
-        )
+    )
     cooking_time = models.PositiveIntegerField(
         'Время приготовления',
         validators=[MinValueValidator(1), ]

@@ -37,7 +37,7 @@ class UserFollowViewSet(UserViewSet):
         detail=True,
         permission_classes=(IsAuthenticated,),
         url_path='subscribe'
-        )
+    )
     def add_subscribe(self, request, **kwargs):
         user = request.user
         author = get_object_or_404(User, id=self.kwargs.get('id'))

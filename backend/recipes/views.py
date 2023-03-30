@@ -16,7 +16,6 @@ from recipes.models import Favorites, Ingredient, Recipe, ShoppingCart, Tag
 from recipes.permissions import IsAuthorOrReadOnly
 from recipes.serializers import (IngredientSerializer,
                                  FavoritesSerializer,
-                                 RecipeAnotherSerializer,
                                  RecipeIngredientRelations,
                                  RecipeSerializer,
                                  ShoppingCartSerializer,
@@ -58,7 +57,7 @@ class RecipeViewSet(CustomRecipeViewSet):
         detail=True,
         permission_classes=(IsAuthenticated,),
         url_path='favorite'
-        )
+    )
     def add_recipes_in_favorites(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -90,7 +89,7 @@ class RecipeViewSet(CustomRecipeViewSet):
         detail=True,
         permission_classes=(IsAuthenticated,),
         url_path='shopping_cart'
-        )
+    )
     def add_recipes_in_shopping_cart(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)

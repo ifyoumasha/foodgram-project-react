@@ -6,8 +6,7 @@ from rest_framework.serializers import (CharField,
                                         ModelSerializer,
                                         SerializerMethodField,
                                         ValidationError)
-from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
-                                   HTTP_400_BAD_REQUEST)
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from recipes.models import (Favorites,
                             Ingredient,
