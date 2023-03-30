@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   db:
-    image: postgres:13.0-apline
+    image: postgres:13.4
     volumes:
       - postgres_value:/var/lib/postgresql/data/
     env_file:
