@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['51.250.79.66', 'localhost', 'foodgram-recipes.sytes.net']
+ALLOWED_HOSTS = ['51.250.79.66', 'localhost', 'foodgram-recipes.sytes.net', 'backend']
 
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
