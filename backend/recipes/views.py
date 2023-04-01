@@ -13,7 +13,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from recipes.filters import RecipeFilterSet
 from recipes.mixins import CustomRecipeViewSet
 from recipes.models import Favorites, Ingredient, Recipe, ShoppingCart, Tag
-from recipes.permissions import IsAuthorOrReadOnly
+# from recipes.permissions import IsAuthorOrReadOnly
 from recipes.serializers import (IngredientSerializer,
                                  FavoritesSerializer,
                                  RecipeIngredientRelations,
