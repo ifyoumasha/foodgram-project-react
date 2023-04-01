@@ -11,8 +11,7 @@ class IsAdminOrReadOnly(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (obj.author == request.user or request.method in SAFE_METHODS
-                or request.user.is_staff or request.user.is_admin
-                or request.user.is_superuser)
+                or request.user.is_admin())
 
 
 class IsAuthorOrReadOnly(BasePermission):
@@ -24,15 +23,5 @@ class IsAuthorOrReadOnly(BasePermission):
                 or request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        return (obj.author == request.user
-                or request.method in SAFE_METHODS or request.user.is_staff
-                or request.user.is_admin or request.user.is_superuser)
-
-
-class IsAuthenticatedOrAdmin(BasePermission):
-    """
-    Кастомный пермишн для авторизованного пользователя или админа.
-    """
-    def has_permission(self, request, view):
-        return (request.user.is_authenticated or request.user.is_staff
-                or request.user.is_admin or request.user.is_superuser)
+        return (obj.author == request.user or request.method in SAFE_METHODS
+                or request.user.is_admin())

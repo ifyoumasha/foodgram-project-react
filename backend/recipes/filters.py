@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
-from django_filters.rest_framework import (AllValuesMultipleFilter,
-                                           BooleanFilter, FilterSet,
-                                           ModelChoiceFilter)
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework.filters import (AllValuesMultipleFilter,
+                                                   BooleanFilter,
+                                                   ModelChoiceFilter)
 
 from recipes.models import Recipe
 
@@ -28,3 +29,14 @@ class RecipeFilterSet(FilterSet):
     class Meta:
         model = Recipe
         fields = ('author', 'tags')
+    
+    # def get_queryset(self):
+    #     name = self.request.query_params['name'].lower()
+    #     starts_with_queryset = list(
+    #         self.queryset.filter(name__istartswith=name)
+    #     )
+    #     cont_queryset = self.queryset.filter(name__icontains=name)
+    #     starts_with_queryset.extend(
+    #         [x for x in cont_queryset if x not in starts_with_queryset]
+    #     )
+    #     return starts_with_queryset

@@ -1,6 +1,7 @@
 import base64
 
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
 from rest_framework.serializers import (CharField,
                                         ImageField,
                                         ModelSerializer,
@@ -138,6 +139,52 @@ class RecipeSerializer(ModelSerializer):
         if user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
+
+    def validate(self, data):
+        ingredients = self.initial_data.get('ingredients')
+        tags = self.initial_data.get('tags')
+        cooking_time = self.validated_data.get('cooking_time')
+        if not ingredients:
+            raise ValidationError(
+                {'ingredients': ('В рецепт необходимо добавить '
+                                 'хотя бы один ингредиент.')
+                 }
+            )
+        list_of_ingredients = []
+        for ingredient in ingredients:
+            current_ingredient = get_object_or_404(
+                Ingredient, pk=ingredient['id']
+            )
+            if current_ingredient in list_of_ingredients:
+                raise ValidationError(
+                    detail='В рецепт уже добавлен такой ингредиент.',
+                    code=HTTP_400_BAD_REQUEST
+                )
+            if int(ingredient['amount']) < 1:
+                raise ValidationError(
+                    {'ingredients': ('Количество ингредиентов в рецепте '
+                                     'должно быть больше или равно одному.')
+                     }
+                )
+            list_of_ingredients.append(current_ingredient)
+        if not tags:
+            raise ValidationError(
+                {'tags': ('Рецепт обязательно должен быть привязан '
+                          'хотя бы к одному тегу.')
+                 }
+            )
+        array_of_tags = set(tags)
+        if len(array_of_tags) != len(tags):
+            raise ValidationError(
+                detail='Теги в рецепте не должны повторяться.',
+                code=HTTP_400_BAD_REQUEST
+            )
+        if int(cooking_time) <= 0:
+            raise ValidationError(
+                {'cooking_time': ('Время приготовления блюда должно быть'
+                                  'больше ноля!')}
+            )
+        return data
 
 
 class FavoritesSerializer(ModelSerializer):

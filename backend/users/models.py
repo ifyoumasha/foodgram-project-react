@@ -44,11 +44,8 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
-
-    @property
-    def is_moderator(self):
-        return self.role == self.SUPERUSER
+        return (self.role == self.ADMIN or self.is_admin
+                or self.is_staff or self.is_superuser)
 
     class Meta:
         ordering = ('id',)
