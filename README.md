@@ -1,11 +1,11 @@
-![example workflow](https://github.com/ifyoumasha//actions/wofoodgram-project-reactrkflows/main.yml/badge.svg)
+![example workflow](https://github.com/ifyoumasha/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 ### Адрес проекта:
 
 http://foodgram-recipes.sytes.net/
 
-<!-- логин от админки: maria -->
-<!-- пароль: foodgram123 -->
+#логин от админки: maria -->
+#пароль: foodgram123
 
 ### Описание проекта:
 
