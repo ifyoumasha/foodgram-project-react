@@ -4,7 +4,7 @@
 
 http://foodgram-recipes.sytes.net/
 
-#логин от админки: maria
+#логин от админки: admin
 #пароль: foodgram123
 
 ### Описание проекта:
