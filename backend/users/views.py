@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
 
+from recipes.pagination import CustomPagination
 from users.models import Subscription
 from users.serializers import CustomUserSerializer, FollowSerializer
 
@@ -20,6 +21,7 @@ class UserFollowViewSet(UserViewSet):
     """
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
+    pagination_class = CustomPagination
 
     @action(detail=False, permission_classes=(IsAuthenticated,))
     def subscriptions(self, request):
