@@ -29,14 +29,3 @@ class RecipeFilterSet(FilterSet):
     class Meta:
         model = Recipe
         fields = ('author', 'tags')
-    
-    # def get_queryset(self):
-    #     name = self.request.query_params['name'].lower()
-    #     starts_with_queryset = list(
-    #         self.queryset.filter(name__istartswith=name)
-    #     )
-    #     cont_queryset = self.queryset.filter(name__icontains=name)
-    #     starts_with_queryset.extend(
-    #         [x for x in cont_queryset if x not in starts_with_queryset]
-    #     )
-    #     return starts_with_queryset

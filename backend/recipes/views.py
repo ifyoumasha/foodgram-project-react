@@ -37,6 +37,17 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('^name',)
 
+    def get_queryset(self):
+        name = self.request.query_params['name'].lower()
+        starts_with_queryset = list(
+            self.queryset.filter(name__istartswith=name)
+        )
+        cont_queryset = self.queryset.filter(name__icontains=name)
+        starts_with_queryset.extend(
+            [x for x in cont_queryset if x not in starts_with_queryset]
+        )
+        return starts_with_queryset
+
 
 class RecipeViewSet(CustomRecipeViewSet):
     """
