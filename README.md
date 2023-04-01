@@ -166,4 +166,3 @@ sudo docker-compose exec backend python manage.py loaddata ingredients.json
 
 ### Автор проекта:
 Кляхина Мария
-GitHub: https://github.com/ifyoumasha
