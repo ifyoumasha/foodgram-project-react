@@ -101,8 +101,10 @@ cd foodgram-project-react/infra/
 ```
 
 ```
-scp docker-compose.yml <username>@<IP>:/home/<username>/ # username - имя пользователя на сервере
-scp nginx.conf <username>@<IP>:/home/<username>/         # IP - публичный IP сервера
+scp docker-compose.yml <username>@<IP>:/home/<username>/
+scp nginx.conf <username>@<IP>:/home/<username>/
+# username - имя пользователя на сервере
+# IP - публичный IP сервера
 ```
 
 В настройках репозитория на GitHub создать переменные окружения в разделе Settings -> Secrets -> Actions:
@@ -115,8 +117,8 @@ DOCKER_PASSWORD # пароль от DockerHub
 SECRET_KEY # секретный ключ от Django-проекта
 HOST # публичный IP сервера
 USER # имя пользователя на сервере
-TELEGRAM_TO # ID от аккаунта в телеграмк для отправки сообщения о успешном деплое
-TELEGRAM_TOKEN # токен от телеграм-бота, в который придёт сообщение о успешном деплое
+TELEGRAM_TO # ID от аккаунта в телеграме для отправки сообщения об успешном деплое
+TELEGRAM_TOKEN # токен от телеграм-бота, в который придёт сообщение об успешном деплое
 
 DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
 DB_NAME=postgres # имя базы данных
@@ -164,3 +166,4 @@ sudo docker-compose exec backend python manage.py loaddata ingredients.json
 
 ### Автор проекта:
 Кляхина Мария
+GitHub: https://github.com/ifyoumasha
