@@ -55,7 +55,7 @@ class RecipeViewSet(CustomRecipeViewSet):
     в избранное и корзину, а также для скачивания списка покупок.
     """
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthorOrReadOnly)
+    permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilterSet
     serializer_class = RecipeSerializer
