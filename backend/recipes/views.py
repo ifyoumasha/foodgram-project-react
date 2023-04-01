@@ -13,7 +13,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from recipes.filters import RecipeFilterSet
 from recipes.mixins import CustomRecipeViewSet
 from recipes.models import Favorites, Ingredient, Recipe, ShoppingCart, Tag
-from recipes.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from recipes.permissions import IsAuthorOrReadOnly
 from recipes.serializers import (IngredientSerializer,
                                  FavoritesSerializer,
                                  RecipeIngredientRelations,
@@ -55,7 +55,7 @@ class RecipeViewSet(CustomRecipeViewSet):
     в избранное и корзину, а также для скачивания списка покупок.
     """
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly)
+    permission_classes = (IsAuthorOrReadOnly)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilterSet
     serializer_class = RecipeSerializer
