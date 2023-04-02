@@ -4,7 +4,7 @@
 
 http://foodgram-recipes.sytes.net/
 
-#логин от админки: admin
+#логин от админки: maria
 #пароль: foodgram123
 
 ### Описание проекта:
@@ -79,7 +79,7 @@ docker-compose up
 Документация и примеры запросов доступны по адресу:
 
 ```
-http://api/docs/redoc.html
+http://foodgram-recipes.sytes.net/api/docs/
 ```
 
 ### Как запустить проект на удалённом сервере:
@@ -166,3 +166,4 @@ sudo docker-compose exec backend python manage.py loaddata ingredients.json
 
 ### Автор проекта:
 Кляхина Мария
+m.klyahina@yandex.ru
